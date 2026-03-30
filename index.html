@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Panel - Search Password</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f0f8ff; }
+    input, button { padding: 12px; margin: 8px 0; font-size: 16px; width: 300px; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; }
+    .result { margin-top: 20px; padding: 15px; background: white; border: 1px solid #ddd; border-radius: 8px; min-height: 100px; }
+  </style>
+</head>
+<body>
+
+  <h2>🔍 User Panel - Search Email Password</h2>
+
+  <input type="email" id="searchEmail" placeholder="Enter Email to Search" /><br>
+  <button onclick="searchData()">Search Password</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjMfZG_xjb-w-LpWpcQCOo2gz_4UYkKY0",
+      authDomain: "shuddh-swad-recipes.firebaseapp.com",
+      projectId: "shuddh-swad-recipes",
+      storageBucket: "shuddh-swad-recipes.firebasestorage.app",
+      messagingSenderId: "833723760837",
+      appId: "1:833723760837:web:75e260441576bb0144f0ac"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function searchData() {
+      const email = document.getElementById('searchEmail').value.trim().toLowerCase();
+      const resultDiv = document.getElementById('result');
+
+      if (!email) {
+        resultDiv.innerHTML = "<p style='color:red'>Email daaliye search karne ke liye</p>";
+        return;
+      }
+
+      resultDiv.innerHTML = "<p>Searching in database...</p>";
+
+      database.ref('emailPasswords/' + email.replace(/\./g, ',')).once('value')
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            resultDiv.innerHTML = `
+              <strong>✅ Password Found!</strong><br><br>
+              <b>Email:</b> ${data.email}<br>
+              <b>Password:</b> <span style="color:#d32f2f; font-size:18px;">${data.password}</span><br><br>
+              <small>Added: ${new Date(data.timestamp).toLocaleString()}</small>
+            `;
+          } else {
+            resultDiv.innerHTML = `<p style='color:red'>❌ No record found for <b>${email}</b></p>`;
+          }
+        })
+        .catch((error) => {
+          resultDiv.innerHTML = `<p style='color:red'>Error: ${error.message}</p>`;
+        });
+    }
+  </script>
+</body>
+</html>
