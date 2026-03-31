@@ -3,67 +3,220 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Panel - Search Password</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <title>PassVault • Secure Finder</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  
   <style>
-    body { font-family: Arial; padding: 20px; background: #f0f8ff; }
-    input, button { padding: 12px; margin: 8px 0; font-size: 16px; width: 300px; }
-    button { background: #007bff; color: white; border: none; cursor: pointer; }
-    .result { margin-top: 20px; padding: 15px; background: white; border: 1px solid #ddd; border-radius: 8px; min-height: 100px; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
+      top: -200px;
+      left: -200px;
+      z-index: -1;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      width: 100%;
+      max-width: 460px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      padding: 35px 30px;
+      text-align: center;
+    }
+
+    .header h1 { font-size: 28px; font-weight: 700; color: white; }
+    .header p { color: rgba(255,255,255,0.85); margin-top: 6px; }
+
+    .service-icons {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 20px 0;
+    }
+
+    .service-icons i {
+      font-size: 38px;
+      transition: all 0.4s ease;
+    }
+
+    .gmail { color: #ea4335; }
+    .outlook { color: #0078d4; }
+    .temp { color: #10b981; }
+
+    .service-icons i:hover {
+      transform: scale(1.25) rotate(12deg);
+    }
+
+    .body { padding: 40px 35px; }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 18px 20px 18px 55px;
+      font-size: 17px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      color: white;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 20px;
+    }
+
+    button {
+      width: 100%;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.4s;
+    }
+
+    button:hover {
+      transform: translateY(-4px);
+    }
+
+    .result { margin-top: 25px; animation: popIn 0.6s ease; }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
 
-  <h2>🔍 User Panel - Search Email Password</h2>
+  <div class="container">
+    <div class="header">
+      <h1>🔐 PassVault</h1>
+      <p>Instant & Secure Password Finder</p>
+      <div class="service-icons">
+        <i class="fab fa-google gmail"></i>
+        <i class="fab fa-microsoft outlook"></i>
+        <i class="fas fa-envelope temp"></i>
+      </div>
+    </div>
 
-  <input type="email" id="searchEmail" placeholder="Enter Email to Search" /><br>
-  <button onclick="searchData()">Search Password</button>
+    <div class="body">
+      <div class="input-group">
+        <i class="fas fa-envelope"></i>
+        <input type="email" id="searchEmail" placeholder="Enter Gmail, Outlook or any email" autocomplete="off">
+      </div>
 
-  <div class="result" id="result"></div>
+      <button onclick="searchData()">
+        <i class="fas fa-search"></i> &nbsp; Find Password
+      </button>
+
+      <div class="result" id="result"></div>
+    </div>
+  </div>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAjMfZG_xjb-w-LpWpcQCOo2gz_4UYkKY0",
-      authDomain: "shuddh-swad-recipes.firebaseapp.com",
-      projectId: "shuddh-swad-recipes",
-      storageBucket: "shuddh-swad-recipes.firebasestorage.app",
-      messagingSenderId: "833723760837",
-      appId: "1:833723760837:web:75e260441576bb0144f0ac"
-    };
+    // ←←← Yahan apna Worker URL daal do
+    const WORKER_URL = "https://your-worker-name.yourname.workers.dev";   // ← Change this
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    function searchData() {
+    async function searchData() {
       const email = document.getElementById('searchEmail').value.trim().toLowerCase();
       const resultDiv = document.getElementById('result');
 
       if (!email) {
-        resultDiv.innerHTML = "<p style='color:red'>Email daaliye search karne ke liye</p>";
+        resultDiv.innerHTML = `<p style="color:#f87171; text-align:center; padding:15px;">Please enter email address</p>`;
         return;
       }
 
-      resultDiv.innerHTML = "<p>Searching in database...</p>";
+      resultDiv.innerHTML = `
+        <div style="text-align:center; padding:30px 0;">
+          <i class="fas fa-spinner fa-spin" style="font-size:32px; color:#818cf8;"></i>
+          <p style="margin-top:15px; color:#cbd5e1;">Searching secure vault...</p>
+        </div>`;
 
-      database.ref('emailPasswords/' + email.replace(/\./g, ',')).once('value')
-        .then((snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            resultDiv.innerHTML = `
-              <strong>✅ Password Found!</strong><br><br>
-              <b>Email:</b> ${data.email}<br>
-              <b>Password:</b> <span style="color:#d32f2f; font-size:18px;">${data.password}</span><br><br>
-              <small>Added: ${new Date(data.timestamp).toLocaleString()}</small>
-            `;
-          } else {
-            resultDiv.innerHTML = `<p style='color:red'>❌ No record found for <b>${email}</b></p>`;
-          }
-        })
-        .catch((error) => {
-          resultDiv.innerHTML = `<p style='color:red'>Error: ${error.message}</p>`;
+      try {
+        const response = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "search", email: email })
         });
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const data = result.data;
+          resultDiv.innerHTML = `
+            <div style="background:rgba(16,185,129,0.15); border:1px solid #4ade80; padding:22px; border-radius:16px; text-align:center;">
+              <p style="color:#4ade80; font-size:15px; margin-bottom:8px;">✅ PASSWORD FOUND</p>
+              <p style="color:white; font-size:17px; margin:12px 0 8px;">${data.email}</p>
+              <p style="font-size:26px; font-weight:700; color:#86efac; letter-spacing:2px; margin:15px 0;">
+                ${data.password}
+              </p>
+              <button onclick="copyPassword('${data.password}')" style="background:#22c55e; padding:10px 20px; border:none; border-radius:8px; color:white; cursor:pointer; margin-top:10px;">
+                📋 Copy Password
+              </button>
+            </div>`;
+        } else {
+          resultDiv.innerHTML = `
+            <div style="background:rgba(248,113,113,0.15); border:1px solid #f87171; padding:25px; border-radius:16px; text-align:center; color:#fda4af;">
+              <h3>❌ Not Found</h3>
+              <p>No password saved for this email</p>
+            </div>`;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red; text-align:center;">Connection error. Try again.</p>`;
+      }
     }
+
+    function copyPassword(pass) {
+      navigator.clipboard.writeText(pass).then(() => {
+        alert("✅ Password Copied Successfully!");
+      });
+    }
+
+    document.getElementById('searchEmail').addEventListener("keypress", (e) => {
+      if (e.key === "Enter") searchData();
+    });
   </script>
 </body>
 </html>
